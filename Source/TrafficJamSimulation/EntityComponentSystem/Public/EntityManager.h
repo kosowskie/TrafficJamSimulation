@@ -38,13 +38,13 @@ class TRAFFICJAMSIMULATION_API UEntityManager : public UObject
 {
 	GENERATED_BODY()
 
-	UEntityManager(const FObjectInitializer& ObjectInitializer);
 
 public:
+	UEntityManager(const FObjectInitializer& ObjectInitializer);
+	
 	UFUNCTION()
 	void InitializeManager(TArray<AActor*> Entities);
 
-	UFUNCTION()
 	virtual void InitializeSystems(){};
 
 	UFUNCTION()

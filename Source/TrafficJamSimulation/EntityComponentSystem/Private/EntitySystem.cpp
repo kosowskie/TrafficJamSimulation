@@ -3,6 +3,8 @@
 
 #include "TrafficJamSimulation/EntityComponentSystem/Public/EntitySystem.h"
 
+#include "TrafficJamSimulation/Data/CarData.h"
+
 AEntitySystem::AEntitySystem()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -12,6 +14,17 @@ AEntitySystem::AEntitySystem()
 
 	ViewEntities = CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("ViewEntities"));
 	ViewEntities->SetupAttachment(MyRootComponent);
+}
+
+void AEntitySystem::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	TArray<int*> Indexes;
+	GetDataContainer().GetKeys(Indexes);
+
+	for(const int* Index : Indexes)
+		UpdateSystem(*Index, Indexes.Last() == Index);
 }
 
 void AEntitySystem::UpdateInstanceLocation(int InstanceIndex, FVector Location, bool bShouldUpdateRender)

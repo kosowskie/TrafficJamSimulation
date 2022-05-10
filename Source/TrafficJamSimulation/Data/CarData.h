@@ -37,12 +37,4 @@ struct FCarData : public FEntityData
 		LastCarDistance(_LastCarDistance)
 	{
 	}
-};/*
-
-class TRAFFICJAMSIMULATION_API CarData
-{
-public:
-	CarData();
-	~CarData();
 };
-*/

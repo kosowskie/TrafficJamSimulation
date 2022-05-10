@@ -4,6 +4,7 @@
 #include "TrafficJamSimulation/Core/Public/TrafficJamSimulationGameModeBase.h"
 
 #include "Kismet/GameplayStatics.h"
+#include "TrafficJamSimulation/Core/Public/TrafficJamSimulationEntityManager.h"
 #include "TrafficJamSimulation/EntityComponentSystem/Public/EntityInterface.h"
 
 class IEntityInterface;
@@ -21,7 +22,7 @@ void ATrafficJamSimulationGameModeBase::BeginPlay()
 
 void ATrafficJamSimulationGameModeBase::StartEntityManager()
 {
-	SetEntityManager(NewObject<UEntityManager>(UEntityManager::StaticClass()));
+	SetEntityManager(NewObject<UTrafficJamSimulationEntityManager>(UTrafficJamSimulationEntityManager::StaticClass()));
 
 	if (!GetEntityManager())
 		return;

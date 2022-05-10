@@ -4,8 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
-#include "TrafficJamSimulation/EntityComponentSystem/Public/EntityManager.h"
 #include "TrafficJamSimulationGameModeBase.generated.h"
+
+class UTrafficJamSimulationEntityManager;
 
 DECLARE_DELEGATE(FOnEntityManagerInitialize)
 
@@ -21,12 +22,12 @@ public:
 	UFUNCTION()
 	void StartEntityManager();
 
-	UEntityManager* GetEntityManager() const
+	UTrafficJamSimulationEntityManager* GetEntityManager() const
 	{
 		return EntityManager;
 	};
 
-	void SetEntityManager(UEntityManager* _EntityManager)
+	void SetEntityManager(UTrafficJamSimulationEntityManager* _EntityManager)
 	{
 		this->EntityManager = _EntityManager;
 	};
@@ -38,5 +39,5 @@ protected:
 	
 private:
 	UPROPERTY()
-	UEntityManager* EntityManager;
+	UTrafficJamSimulationEntityManager* EntityManager;
 };

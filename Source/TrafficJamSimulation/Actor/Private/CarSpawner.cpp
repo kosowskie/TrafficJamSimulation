@@ -5,6 +5,7 @@
 
 #include "GameFramework/GameModeBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "TrafficJamSimulation/Core/Public/TrafficJamSimulationEntityManager.h"
 #include "TrafficJamSimulation/Core/Public/TrafficJamSimulationGameModeBase.h"
 #include "TrafficJamSimulation/EntityComponentSystem/Public/EntitySystem.h"
 #include "TrafficJamSimulation/System/Public/CarSystem.h"

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "EntityManager.h"
 #include "GameFramework/GameModeBase.h"
+#include "TrafficJamSimulation/Data/CarData.h"
 #include "EntitySystem.generated.h"
 
 UCLASS()
@@ -14,7 +15,13 @@ class TRAFFICJAMSIMULATION_API AEntitySystem : public AActor
 
 public:
 	AEntitySystem();
+
+	virtual void Tick(float DeltaSeconds) override;
 	
+protected:
+	virtual void UpdateSystem(int EntityIndex, bool bShouldRender){};
+
+public:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Component", meta = (AllowPrivateAccess = "true"))
 	USceneComponent* MyRootComponent;
 	
@@ -29,7 +36,7 @@ public:
 	
 	virtual void AddDataToContainer(int32* Index, FEntityData Data);
 	
-	void AddNewEntity(FEntityData EntityData);
+	virtual void AddNewEntity(FEntityData EntityData);
 	void RemoveEntity(int InstanceIndex) const;
 	
 	TMap<int*, FEntityData> GetDataContainer() const
