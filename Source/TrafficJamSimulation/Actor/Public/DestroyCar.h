@@ -16,10 +16,10 @@ public:
 	// Sets default values for this actor's properties
 	ADestroyCar();
 	
-	UPROPERTY(Category = CarCollision, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	USceneComponent* MyRootComponent;
 	
-	UPROPERTY(Category = CarCollision, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	UBoxComponent* BoxComponent;
 	
 };

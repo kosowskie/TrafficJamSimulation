@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "TrafficLight.generated.h"
 
+class UBoxComponent;
 UCLASS()
 class TRAFFICJAMSIMULATION_API ATrafficLight : public AActor
 {
@@ -14,13 +15,32 @@ class TRAFFICJAMSIMULATION_API ATrafficLight : public AActor
 public:
 	// Sets default values for this actor's properties
 	ATrafficLight();
-	// TODO: Rewrite it from blueprint
+	
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	USceneComponent* MyRootComponent;
+	
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* MeshComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float RedLightTime = 10.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float GreenLightTime = 10.f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UMaterialInstance* RedLightMaterial;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UMaterialInstance* GreenLightMaterial;
+
+	UFUNCTION()
+	void SetRedLight();
+
+	UFUNCTION()
+	void SetGreenLight();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 };

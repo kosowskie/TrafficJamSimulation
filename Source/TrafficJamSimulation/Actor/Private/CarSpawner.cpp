@@ -59,5 +59,7 @@ void ACarSpawner::BindCarEntitySystem()
 		SetCarSystem(Cast<ACarSystem>(EntitySystem));
 		break;
 	}
+
+	SpawningEntities();
 }
 
