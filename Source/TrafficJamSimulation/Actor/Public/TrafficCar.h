@@ -4,12 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "TrafficJamSimulation/Components/FrontCarBoxCollision.h"
+#include "TrafficJamSimulation/EntityComponentSystem/Public/EntityInterface.h"
 #include "TrafficCar.generated.h"
 
 class UBackCarBoxCollision;
 UCLASS()
-class TRAFFICJAMSIMULATION_API ATrafficCar : public AActor
+class TRAFFICJAMSIMULATION_API ATrafficCar : public AActor, public IEntityInterface
 {
 	GENERATED_BODY()
 
@@ -19,18 +19,14 @@ public:
 	
 	UPROPERTY(Category = CarCollision, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	USceneComponent* MyRootComponent;
-
+	
 	UPROPERTY(Category = CarCollision, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	UFrontCarBoxCollision* FrontCarBoxCollision;
+	UStaticMeshComponent* MeshComponent;
 
-	UPROPERTY(Category = CarCollision, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	UBackCarBoxCollision* BackCarBoxCollision;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString Id;
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	UFUNCTION(BlueprintNativeEvent)
+	FEntityData GetData();
+	virtual FEntityData GetData_Implementation() override;
 };
