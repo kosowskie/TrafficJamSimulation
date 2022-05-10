@@ -3,24 +3,19 @@
 
 #include "TrafficJamSimulation/Actor/Public/DestroyCar.h"
 
+#define ECC_Finish ECC_GameTraceChannel2
 
 // Sets default values
 ADestroyCar::ADestroyCar()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-}
 
-// Called when the game starts or when spawned
-void ADestroyCar::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
+	MyRootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
+	SetRootComponent(MyRootComponent);
 
-// Called every frame
-void ADestroyCar::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
+	BoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComponent"));
+	BoxComponent->SetupAttachment(MyRootComponent);
+	BoxComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_Finish, ECollisionResponse::ECR_Block);
 }
 

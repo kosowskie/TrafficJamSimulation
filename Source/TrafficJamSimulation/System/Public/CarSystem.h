@@ -6,8 +6,16 @@
 #include "TrafficJamSimulation/EntityComponentSystem/Public/EntitySystem.h"
 #include "CarSystem.generated.h"
 
-
 struct FCarData;
+
+UENUM()
+enum class EAccelerateMode : uint8
+{
+	SlowDown = 0			UMETA(DisplayName = "SlowDown"),
+	SpeedUp = 1				UMETA(DisplayName = "SpeedUp"),
+	ConstSpeed = 2			UMETA(DisplayName = "ConstSpeed"),
+};
+
 UCLASS()
 class TRAFFICJAMSIMULATION_API ACarSystem : public AEntitySystem
 {
@@ -61,6 +69,9 @@ public:
 	};
 
 	UFUNCTION()
+	float GetAccelerateValue(int InstanceIndex, float Accelerate) const;
+
+	UFUNCTION()
 	float GetSpeedModifier(int InstanceIndex) const;
 
 	UFUNCTION()
@@ -75,8 +86,14 @@ protected:
 private:
 	bool CheckFinishOverlap(int InstanceIndex);
 
+	void PreventCarCrashSpeedModifier(int InstanceIndex, float Distance);
+	
 	void UpdateCarCrashPrevention(int InstanceIndex);
+	void UpdateCarMovement(int InstanceIndex, bool bShouldRender);
+	
 	bool CheckCarCrash(int InstanceIndex);
+
+	float GetNormalizeModifier(float Value) const;
 
 	FCarData* CarData;
 };

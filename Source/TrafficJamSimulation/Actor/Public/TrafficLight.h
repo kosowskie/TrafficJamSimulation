@@ -14,6 +14,7 @@ class TRAFFICJAMSIMULATION_API ATrafficLight : public AActor
 public:
 	// Sets default values for this actor's properties
 	ATrafficLight();
+	// TODO: Rewrite it from blueprint
 
 protected:
 	// Called when the game starts or when spawned
