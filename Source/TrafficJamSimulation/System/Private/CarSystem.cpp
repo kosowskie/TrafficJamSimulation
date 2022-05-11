@@ -40,18 +40,18 @@ void ACarSystem::UpdateCarCrashPrevention(int InstanceIndex)
 	if (CheckCarCrash(InstanceIndex))
 		return;
 
-	FCarData* CarData = GetDataContainer().Find(InstanceIndex);
+	// If Car did not collide then accelerate vehicle with normal momentum
+	const FCarData* CarData = GetDataContainer().Find(InstanceIndex);
 	SetSpeedModifier(InstanceIndex, CarData->CarAcceleration + CarData->SpeedModifier);
 }
 
 void ACarSystem::UpdateCarMovement(int InstanceIndex, bool bShouldRender)
 {
-	FCarData* CarData = GetDataContainer().Find(InstanceIndex);
+	const FCarData* CarData = GetDataContainer().Find(InstanceIndex);
 	const FVector CarLocation = CarData->Transform.GetLocation();
 	const FVector CarForwardVector = UKismetMathLibrary::GetForwardVector(CarData->Transform.GetRotation().Rotator()) *
 		GetAccelerateValue(InstanceIndex, CarData->EngineSpeed);
 
-	UKismetSystemLibrary::PrintString(this, "Location:" + FVector(CarLocation + CarForwardVector).ToString());
 	UpdateInstanceLocation(InstanceIndex, CarLocation + CarForwardVector, bShouldRender);
 }
 
@@ -111,7 +111,7 @@ bool ACarSystem::CheckCarCrash(int InstanceIndex)
 	const bool bIsHitting = UKismetSystemLibrary::LineTraceSingle(this, StartLineTrace, EndLineTrace,
 	                                                              UEngineTypes::ConvertToTraceType(
 		                                                              ECollisionChannel::ECC_Car),
-	                                                              true, TArray<AActor*>(), EDrawDebugTrace::ForOneFrame,
+	                                                              true, TArray<AActor*>(), EDrawDebugTrace::None,
 	                                                              OutResult,
 	                                                              false);
 
@@ -155,7 +155,6 @@ void ACarSystem::SetSpeedModifier(int InstanceIndex, float SpeedModifier)
 {
 	FCarData* LocalCarData = DataContainer.Find(InstanceIndex);
 	LocalCarData->SpeedModifier = FMath::Clamp(SpeedModifier, 0.f, 1.f);
-	UKismetSystemLibrary::PrintString(this, "Modifier: " + FString::SanitizeFloat(LocalCarData->SpeedModifier));
 }
 
 void ACarSystem::UpdateSystem(int EntityIndex, bool bShouldRender)

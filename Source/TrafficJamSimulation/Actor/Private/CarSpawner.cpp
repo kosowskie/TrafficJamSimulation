@@ -40,7 +40,7 @@ void ACarSpawner::BeginPlay()
 	BindCarEntitySystem();
 }
 
-void ACarSpawner::FindCarEntitySystem(ATrafficJamSimulationGameModeBase* ProjectGameMode)
+void ACarSpawner::FindCarEntitySystem(const ATrafficJamSimulationGameModeBase* ProjectGameMode)
 {
 	for (AEntitySystem* EntitySystem : ProjectGameMode->GetEntityManager()->GetEntitiesContainer())
 	{
@@ -62,7 +62,7 @@ void ACarSpawner::BindCarEntitySystem()
 	{
 		ProjectGameMode->OnEntityManagerInitialize.AddLambda([this]()
 		{
-			ATrafficJamSimulationGameModeBase* ProjectGameMode = Cast<ATrafficJamSimulationGameModeBase>(
+			const ATrafficJamSimulationGameModeBase* ProjectGameMode = Cast<ATrafficJamSimulationGameModeBase>(
 				UGameplayStatics::GetGameMode(this));
 			FindCarEntitySystem(ProjectGameMode);
 			SpawningEntities();

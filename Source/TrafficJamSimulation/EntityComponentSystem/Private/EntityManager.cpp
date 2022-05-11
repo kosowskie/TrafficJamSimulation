@@ -25,15 +25,18 @@ void UEntityManager::InitializeManager(TArray<AActor*> Entities)
 
 	for(AActor* Entity : Entities)
 	{
+		// Search if Entity has Entity Interface
 		if(!Entity->GetClass()->ImplementsInterface(UEntityInterface::StaticClass()))
 			continue;
 		
 		FEntityData EntityData = IEntityInterface::Execute_GetData(Entity);
+		// Finding appropriate system to specific entities
 		for(AEntitySystem* EntitySystem : GetEntitiesContainer())
 		{
 			if(EntitySystem->DataType != EntityData.Id)
 				continue;
 
+			// Convert Actor To Entity
 			EntitySystem->AddNewEntity_Implementation(EntityData);
 			Entity->Destroy();
 			break;
