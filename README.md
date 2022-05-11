@@ -12,7 +12,7 @@ https://github.com/kosowskie/TrafficJamSimulation </br>
 
 # How It was implemented
 
-At first, GameMode creates our EntityManager. Therefore he creates needed systems (we need to declare them). 
+At first, GameMode creates our EntityManager. Therefore It creates needed systems (we need to declare them). 
 All actors which implements special interface are converted to Entity. Actually Instance of InstancedStaticMeshComponent which belong to specific System.
 Now we can update view, but also data of specific Entities from our System.
 
