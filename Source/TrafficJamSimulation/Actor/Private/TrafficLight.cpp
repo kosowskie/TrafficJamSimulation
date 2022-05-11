@@ -3,9 +3,6 @@
 
 #include "TrafficJamSimulation/Actor/Public/TrafficLight.h"
 
-#include "Kismet/KismetMathLibrary.h"
-
-
 // Sets default values
 ATrafficLight::ATrafficLight()
 {
