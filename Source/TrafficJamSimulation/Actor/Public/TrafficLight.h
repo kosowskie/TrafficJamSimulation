@@ -29,10 +29,10 @@ public:
 	float GreenLightTime = 10.f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UMaterialInstance* RedLightMaterial;
+	UMaterialInterface* RedLightMaterial;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UMaterialInstance* GreenLightMaterial;
+	UMaterialInterface* GreenLightMaterial;
 
 	UFUNCTION()
 	void SetRedLight();

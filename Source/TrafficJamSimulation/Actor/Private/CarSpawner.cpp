@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "TrafficJamSimulation/Core/Public/TrafficJamSimulationEntityManager.h"
 #include "TrafficJamSimulation/Core/Public/TrafficJamSimulationGameModeBase.h"
+#include "TrafficJamSimulation/Data/CarData.h"
 #include "TrafficJamSimulation/EntityComponentSystem/Public/EntitySystem.h"
 #include "TrafficJamSimulation/System/Public/CarSystem.h"
 
@@ -20,7 +21,7 @@ ACarSpawner::ACarSpawner()
 void ACarSpawner::SpawningEntities()
 {
 	SpawnCarEntity();
-	
+
 	FTimerHandle TimerHandle;
 	const float SpawnTime = FMath::RandRange(MinRandSpawnTimer, MaxRandSpawnTimer);
 	GetWorldTimerManager().SetTimer(TimerHandle, this, &ACarSpawner::SpawningEntities, SpawnTime);
@@ -28,7 +29,7 @@ void ACarSpawner::SpawningEntities()
 
 void ACarSpawner::SpawnCarEntity() const
 {
-	GetCarSystem()->AddNewEntity(FEntityData(CarId, CarMesh, GetActorTransform()));
+	GetCarSystem()->AddNewEntity_Implementation(FCarData(CarId, CarMesh, GetActorTransform()));
 }
 
 // Called when the game starts or when spawned
@@ -39,27 +40,36 @@ void ACarSpawner::BeginPlay()
 	BindCarEntitySystem();
 }
 
+void ACarSpawner::FindCarEntitySystem(ATrafficJamSimulationGameModeBase* ProjectGameMode)
+{
+	for (AEntitySystem* EntitySystem : ProjectGameMode->GetEntityManager()->GetEntitiesContainer())
+	{
+		if (!EntitySystem->GetClass()->IsChildOf(ACarSystem::StaticClass()))
+			continue;
+
+		SetCarSystem(Cast<ACarSystem>(EntitySystem));
+		break;
+	}
+}
+
 void ACarSpawner::BindCarEntitySystem()
 {
 	AGameModeBase* GameMode = UGameplayStatics::GetGameMode(this);
 	check(GameMode);
 
 	ATrafficJamSimulationGameModeBase* ProjectGameMode = Cast<ATrafficJamSimulationGameModeBase>(GameMode);
-	if(!ProjectGameMode->GetEntityManager())
+	if (!ProjectGameMode->GetEntityManager())
 	{
-		ProjectGameMode->OnEntityManagerInitialize.BindUObject(this, &ACarSpawner::BindCarEntitySystem);
+		ProjectGameMode->OnEntityManagerInitialize.AddLambda([this]()
+		{
+			ATrafficJamSimulationGameModeBase* ProjectGameMode = Cast<ATrafficJamSimulationGameModeBase>(
+				UGameplayStatics::GetGameMode(this));
+			FindCarEntitySystem(ProjectGameMode);
+			SpawningEntities();
+		});
 		return;
 	}
 
-	for(AEntitySystem* EntitySystem : ProjectGameMode->GetEntityManager()->GetEntitiesContainer())
-	{
-		if(!EntitySystem->GetClass()->IsChildOf(ACarSystem::StaticClass()))
-			continue;
-
-		SetCarSystem(Cast<ACarSystem>(EntitySystem));
-		break;
-	}
-
+	FindCarEntitySystem(ProjectGameMode);
 	SpawningEntities();
 }
-

@@ -28,6 +28,11 @@ struct FCarData : public FEntityData
 	FCarData(): EngineSpeed(0.f), CarAcceleration(0.f), SpeedModifier(0.f), LastCarDistance(0.f)
 	{
 	}
+	
+	FCarData(FString _Id, UStaticMesh* _ViewRepresentation, FTransform _Transform) : Super(_Id, _ViewRepresentation,
+		_Transform), EngineSpeed(0.f), CarAcceleration(0.f), SpeedModifier(0.f), LastCarDistance(0.f)
+	{
+	}
 
 	FCarData(FString _Id, UStaticMesh* _ViewRepresentation, FTransform _Transform,
 	         float _EngineSpeed, float _CarAcceleration, float _SpeedModifier,

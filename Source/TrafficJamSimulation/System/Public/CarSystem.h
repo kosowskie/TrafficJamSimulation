@@ -3,10 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "TrafficJamSimulation/Data/CarData.h"
 #include "TrafficJamSimulation/EntityComponentSystem/Public/EntitySystem.h"
 #include "CarSystem.generated.h"
-
-struct FCarData;
 
 UENUM()
 enum class EAccelerateMode : uint8
@@ -76,12 +75,32 @@ public:
 
 	UFUNCTION()
 	void SetSpeedModifier(int InstanceIndex, float SpeedModifier);
+
+	virtual void AddNewEntity_Implementation(FEntityData EntityData) override;
 	
-	virtual void AddNewEntity(FEntityData EntityData) override;
-	virtual void AddDataToContainer(int32* Index, FEntityData Data) override;
+	virtual void AddDataToContainer_Implementation(FEntityData Data) override;
+	
+	virtual void RemoveEntity_Implementation(int InstanceIndex) override;
+
+	virtual void UpdateInstanceLocation(int InstanceIndex, FVector Location, bool bShouldUpdateRender) override;
+	
+	UFUNCTION(BlueprintNativeEvent)
+	FEntityData GetDataByIndex(int InstanceIndex) const;
+	virtual FEntityData GetDataByIndex_Implementation(int InstanceIndex) const override;
+
+	TMap<int, FCarData> GetDataContainer() const
+	{
+		return DataContainer;
+	};
+
+	void SetDataContainer(const TMap<int, FCarData>& _DataContainer)
+	{
+		DataContainer = _DataContainer;
+	};
 
 protected:
 	virtual void UpdateSystem(int EntityIndex, bool bShouldRender) override;
+	virtual void Tick(float DeltaSeconds) override;
 
 private:
 	bool CheckFinishOverlap(int InstanceIndex);
@@ -95,5 +114,5 @@ private:
 
 	float GetNormalizeModifier(float Value) const;
 
-	FCarData* CarData;
+	TMap<int, FCarData> DataContainer;
 };

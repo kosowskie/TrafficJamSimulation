@@ -5,6 +5,10 @@
 
 #include "TrafficJamSimulation/System/Public/CarSystem.h"
 
+UTrafficJamSimulationEntityManager::UTrafficJamSimulationEntityManager() : Super()
+{
+}
+
 UTrafficJamSimulationEntityManager::UTrafficJamSimulationEntityManager(
 	const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -14,5 +18,5 @@ void UTrafficJamSimulationEntityManager::InitializeSystems()
 {
 	Super::InitializeSystems();
 
-	CreateSystem(ACarSystem::StaticClass());
+	CreateSystem(CarSystemClass);
 }

@@ -3,6 +3,7 @@
 
 #include "TrafficJamSimulation/EntityComponentSystem/Public/EntitySystem.h"
 
+#include "Kismet/KismetSystemLibrary.h"
 #include "TrafficJamSimulation/Data/CarData.h"
 
 AEntitySystem::AEntitySystem()
@@ -16,35 +17,17 @@ AEntitySystem::AEntitySystem()
 	ViewEntities->SetupAttachment(MyRootComponent);
 }
 
-void AEntitySystem::Tick(float DeltaSeconds)
-{
-	Super::Tick(DeltaSeconds);
-
-	TArray<int*> Indexes;
-	GetDataContainer().GetKeys(Indexes);
-
-	for(const int* Index : Indexes)
-		UpdateSystem(*Index, Indexes.Last() == Index);
-}
-
 void AEntitySystem::UpdateInstanceLocation(int InstanceIndex, FVector Location, bool bShouldUpdateRender)
 {
-	FEntityData* EntityData = DataContainer.Find(&InstanceIndex);
-	EntityData->Transform.SetLocation(Location);
-	ViewEntities->UpdateInstanceTransform(InstanceIndex, EntityData->Transform, true, bShouldUpdateRender, true);
 }
 
-void AEntitySystem::AddDataToContainer(int32* Index, FEntityData Data)
+void AEntitySystem::AddNewEntity_Implementation(FEntityData EntityData)
 {
-	DataContainer.Add(Index, Data);
+	ViewEntities->AddInstance(EntityData.Transform);
+	AddDataToContainer_Implementation(EntityData);
 }
 
-void AEntitySystem::AddNewEntity(FEntityData EntityData)
-{
-	AddDataToContainer(reinterpret_cast<int32*>(ViewEntities->AddInstance(EntityData.Transform)), EntityData);
-}
-
-void AEntitySystem::RemoveEntity(int InstanceIndex) const
+void AEntitySystem::RemoveEntity_Implementation(int InstanceIndex)
 {
 	ViewEntities->RemoveInstance(InstanceIndex);
 }

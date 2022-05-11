@@ -20,8 +20,5 @@ ATrafficCar::ATrafficCar()
 
 FEntityData ATrafficCar::GetData_Implementation()
 {
-	const FTransform ActorTransform = FTransform(GetActorRotation(), GetActorLocation(), GetActorScale3D());
-	FEntityData EntityData = FEntityData(Id, MeshComponent->GetStaticMesh(), ActorTransform);
-
-	return EntityData;
+	return FEntityData(Id, MeshComponent->GetStaticMesh(), GetActorTransform());
 }

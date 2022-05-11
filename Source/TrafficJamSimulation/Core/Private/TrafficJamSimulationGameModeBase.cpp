@@ -22,15 +22,19 @@ void ATrafficJamSimulationGameModeBase::BeginPlay()
 
 void ATrafficJamSimulationGameModeBase::StartEntityManager()
 {
-	SetEntityManager(NewObject<UTrafficJamSimulationEntityManager>(UTrafficJamSimulationEntityManager::StaticClass()));
+	SetEntityManager(DuplicateObject<UTrafficJamSimulationEntityManager>(
+		Cast<UTrafficJamSimulationEntityManager>(EntityManagerClass->GetDefaultObject()), this,
+		FName("EntityManager")));
 
 	if (!GetEntityManager())
 		return;
-
+	
+	GetEntityManager()->SetWorldContext(this);
+	
 	TArray<AActor*> EntityActors;
 	UGameplayStatics::GetAllActorsWithInterface(this, UEntityInterface::StaticClass(), EntityActors);
 
 	GetEntityManager()->InitializeManager(EntityActors);
 
-	OnEntityManagerInitialize.Execute();
+	OnEntityManagerInitialize.Broadcast();
 }

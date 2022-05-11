@@ -3,18 +3,25 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
 #include "TrafficJamSimulation/EntityComponentSystem/Public/EntityManager.h"
-#include "UObject/Object.h"
+#include "TrafficJamSimulation/System/Public/CarSystem.h"
+
 #include "TrafficJamSimulationEntityManager.generated.h"
 
-UCLASS()
+UCLASS(Blueprintable, BlueprintType, EditInlineNew)
 class TRAFFICJAMSIMULATION_API UTrafficJamSimulationEntityManager : public UEntityManager
 {
 	GENERATED_BODY()
 
 	
 public:
-	UTrafficJamSimulationEntityManager(const FObjectInitializer& ObjectInitializer);
+	UTrafficJamSimulationEntityManager();
 	
+	UTrafficJamSimulationEntityManager(const FObjectInitializer& ObjectInitializer);
+
 	virtual void InitializeSystems() override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<ACarSystem> CarSystemClass;
 };

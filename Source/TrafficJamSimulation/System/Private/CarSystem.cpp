@@ -40,15 +40,18 @@ void ACarSystem::UpdateCarCrashPrevention(int InstanceIndex)
 	if (CheckCarCrash(InstanceIndex))
 		return;
 
+	FCarData* CarData = GetDataContainer().Find(InstanceIndex);
 	SetSpeedModifier(InstanceIndex, CarData->CarAcceleration + CarData->SpeedModifier);
 }
 
 void ACarSystem::UpdateCarMovement(int InstanceIndex, bool bShouldRender)
 {
+	FCarData* CarData = GetDataContainer().Find(InstanceIndex);
 	const FVector CarLocation = CarData->Transform.GetLocation();
 	const FVector CarForwardVector = UKismetMathLibrary::GetForwardVector(CarData->Transform.GetRotation().Rotator()) *
 		GetAccelerateValue(InstanceIndex, CarData->EngineSpeed);
-	
+
+	UKismetSystemLibrary::PrintString(this, "Location:" + FVector(CarLocation + CarForwardVector).ToString());
 	UpdateInstanceLocation(InstanceIndex, CarLocation + CarForwardVector, bShouldRender);
 }
 
@@ -56,6 +59,7 @@ void ACarSystem::PreventCarCrashSpeedModifier(int InstanceIndex, float Distance)
 {
 	EAccelerateMode AccMode;
 
+	FCarData* CarData = GetDataContainer().Find(InstanceIndex);
 	const int RoundLastCarDistance = FMath::RoundToInt(CarData->LastCarDistance / 10.f);
 	const int RoundDistance = FMath::RoundToInt(Distance / 10.f);
 
@@ -69,6 +73,7 @@ void ACarSystem::PreventCarCrashSpeedModifier(int InstanceIndex, float Distance)
 	}
 
 	CarData->LastCarDistance = Distance;
+	DataContainer.Add(InstanceIndex, *CarData);
 
 	const float NormalizeModifier = GetNormalizeModifier(
 		GetRaycastCarDistance() / FMath::Clamp(Distance, 1.f, Distance));
@@ -93,23 +98,26 @@ float ACarSystem::GetNormalizeModifier(float Value) const
 	return Value * (1 / (GetRaycastCarDistance() - 1.f)) * -1.f;
 }
 
+#define ECC_Car ECC_GameTraceChannel1
+
 bool ACarSystem::CheckCarCrash(int InstanceIndex)
 {
 	// LineTracing for search car channel object
 	FVector StartLineTrace;
 	FVector EndLineTrace;
-	GetLineTracePoints(InstanceIndex, GetRaycastFinishDistance(), StartLineTrace, EndLineTrace);
+	GetLineTracePoints(InstanceIndex, GetRaycastCarDistance(), StartLineTrace, EndLineTrace);
 
 	FHitResult OutResult;
 	const bool bIsHitting = UKismetSystemLibrary::LineTraceSingle(this, StartLineTrace, EndLineTrace,
 	                                                              UEngineTypes::ConvertToTraceType(
-		                                                              ECollisionChannel::ECC_Finish),
-	                                                              true, TArray<AActor*>(), EDrawDebugTrace::None,
+		                                                              ECollisionChannel::ECC_Car),
+	                                                              true, TArray<AActor*>(), EDrawDebugTrace::ForOneFrame,
 	                                                              OutResult,
-	                                                              true);
+	                                                              false);
 
 	if (!bIsHitting)
 	{
+		FCarData* CarData = GetDataContainer().Find(InstanceIndex);
 		CarData->LastCarDistance = 0.f;
 		return false;
 	}
@@ -139,23 +147,22 @@ float ACarSystem::GetAccelerateValue(int InstanceIndex, float Accelerate) const
 
 float ACarSystem::GetSpeedModifier(int InstanceIndex) const
 {
-	const FCarData* LocalCarData = static_cast<FCarData*>(GetDataContainer().Find(&InstanceIndex));
+	FCarData* LocalCarData = GetDataContainer().Find(InstanceIndex);
 	return FMath::Clamp(LocalCarData->SpeedModifier, 0.f, 1.f);
 }
 
 void ACarSystem::SetSpeedModifier(int InstanceIndex, float SpeedModifier)
 {
-	FCarData* LocalCarData = static_cast<FCarData*>(GetDataContainer().Find(&InstanceIndex));
+	FCarData* LocalCarData = DataContainer.Find(InstanceIndex);
 	LocalCarData->SpeedModifier = FMath::Clamp(SpeedModifier, 0.f, 1.f);
+	UKismetSystemLibrary::PrintString(this, "Modifier: " + FString::SanitizeFloat(LocalCarData->SpeedModifier));
 }
 
 void ACarSystem::UpdateSystem(int EntityIndex, bool bShouldRender)
 {
 	Super::UpdateSystem(EntityIndex, bShouldRender);
 
-	FEntityData* EntityData = GetDataContainer().Find(&EntityIndex);
-	CarData = static_cast<FCarData*>(EntityData);
-
+	const FCarData* CarData = GetDataContainer().Find(EntityIndex);
 	if (CarData == nullptr || CheckFinishOverlap(EntityIndex))
 		return;
 
@@ -163,11 +170,17 @@ void ACarSystem::UpdateSystem(int EntityIndex, bool bShouldRender)
 	UpdateCarMovement(EntityIndex, bShouldRender);
 }
 
-#define ECC_Car ECC_GameTraceChannel1
-
-void ACarSystem::AddNewEntity(FEntityData EntityData)
+void ACarSystem::Tick(float DeltaSeconds)
 {
-	Super::AddNewEntity(EntityData);
+	Super::Tick(DeltaSeconds);
+
+	for (uint8 i = 0; i < GetDataContainer().Num(); i++)
+		UpdateSystem(i, (GetDataContainer().Num() - 1) == i);
+}
+
+void ACarSystem::AddNewEntity_Implementation(FEntityData EntityData)
+{
+	Super::AddNewEntity_Implementation(EntityData);
 
 	if (ViewEntities->GetStaticMesh() != nullptr)
 		return;
@@ -176,15 +189,46 @@ void ACarSystem::AddNewEntity(FEntityData EntityData)
 	ViewEntities->SetCollisionResponseToChannel(ECollisionChannel::ECC_Car, ECollisionResponse::ECR_Block);
 }
 
-void ACarSystem::AddDataToContainer(int32* Index, FEntityData Data)
+void ACarSystem::AddDataToContainer_Implementation(FEntityData Data)
 {
-	if (Data.StaticStruct() != FCarData::StaticStruct())
-		return;
+	Super::AddDataToContainer_Implementation(Data);
 
 	FCarData* LocalCarData = static_cast<FCarData*>(&Data);
+	if (LocalCarData == nullptr)
+		return;
+
 	LocalCarData->EngineSpeed = UKismetMathLibrary::RandomFloatInRange(MinRandEngineSpeed, MaxRandEngineSpeed);
 	LocalCarData->CarAcceleration = UKismetMathLibrary::RandomFloatInRange(
 		MinRandCarAcceleration, MaxRandCarAcceleration);
 
-	Super::AddDataToContainer(Index, *LocalCarData);
+	DataContainer.Add(GetDataContainer().Num(), *LocalCarData);
+}
+
+void ACarSystem::RemoveEntity_Implementation(int InstanceIndex)
+{
+	Super::RemoveEntity_Implementation(InstanceIndex);
+
+	GetDataContainer().Remove(InstanceIndex);
+
+	for (int i = InstanceIndex; i < GetDataContainer().Num(); i++)
+	{
+		FCarData Data = DataContainer.FindRef(i + 1);
+		DataContainer.Remove(i + 1);
+		DataContainer.Add(i, Data);
+	}
+}
+
+void ACarSystem::UpdateInstanceLocation(int InstanceIndex, FVector Location, bool bShouldUpdateRender)
+{
+	FCarData* EntityData = DataContainer.Find(InstanceIndex);
+	EntityData->Transform = FTransform(EntityData->Transform.GetRotation(), Location,
+	                                   EntityData->Transform.GetScale3D());
+	DataContainer.Add(InstanceIndex, *EntityData);
+	ViewEntities->UpdateInstanceTransform(InstanceIndex, EntityData->Transform, true,
+	                                      true, false);
+}
+
+FEntityData ACarSystem::GetDataByIndex_Implementation(int InstanceIndex) const
+{
+	return GetDataContainer().FindRef(InstanceIndex);
 }

@@ -3,10 +3,17 @@
 
 #include "TrafficJamSimulation/EntityComponentSystem/Public/EntityManager.h"
 
+#include "TrafficJamSimulation/Core/Public/TrafficJamSimulationGameModeBase.h"
 #include "TrafficJamSimulation/EntityComponentSystem/Public/EntityInterface.h"
 #include "TrafficJamSimulation/EntityComponentSystem/Public/EntitySystem.h"
+#include "TrafficJamSimulation/System/Public/CarSystem.h"
 
+class ACarSystem;
 class ATrafficJamSimulationGameModeBase;
+
+UEntityManager::UEntityManager() : Super()
+{
+}
 
 UEntityManager::UEntityManager(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -27,17 +34,17 @@ void UEntityManager::InitializeManager(TArray<AActor*> Entities)
 			if(EntitySystem->DataType != EntityData.Id)
 				continue;
 
-			EntitySystem->AddNewEntity(EntityData);
+			EntitySystem->AddNewEntity_Implementation(EntityData);
 			Entity->Destroy();
 			break;
 		}
 	}
 }
 
-void UEntityManager::CreateSystem(TSubclassOf<AEntitySystem> SystemClass)
+void UEntityManager::CreateSystem(TSubclassOf<AActor> SystemClass)
 {
-	check(GEngine);
+	ensure(GetWorldContext());
 	
-	AEntitySystem* EntitySystem = GEngine->GetWorld()->SpawnActor<AEntitySystem>(SystemClass);
-	EntitiesContainer.Add(EntitySystem);
+	ACarSystem* EntitySystem = GetWorldContext()->GetWorld()->SpawnActor<ACarSystem>(SystemClass);
+	EntitiesContainer.Add(CastChecked<AEntitySystem>(EntitySystem));
 }

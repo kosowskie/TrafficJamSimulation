@@ -8,7 +8,7 @@
 
 class UTrafficJamSimulationEntityManager;
 
-DECLARE_DELEGATE(FOnEntityManagerInitialize)
+DECLARE_MULTICAST_DELEGATE(FOnEntityManagerInitialize)
 
 UCLASS()
 class TRAFFICJAMSIMULATION_API ATrafficJamSimulationGameModeBase : public AGameModeBase
@@ -18,6 +18,9 @@ class TRAFFICJAMSIMULATION_API ATrafficJamSimulationGameModeBase : public AGameM
 
 public:
 	ATrafficJamSimulationGameModeBase();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<UTrafficJamSimulationEntityManager> EntityManagerClass;
 
 	UFUNCTION()
 	void StartEntityManager();
